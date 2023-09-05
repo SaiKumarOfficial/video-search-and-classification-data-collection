@@ -7,7 +7,7 @@ class MongobdClient:
     def __init__(self,database_name= os.environ['DATABASE_NAME']) -> None:
         if MongobdClient.client is None:
             MongobdClient.client = pymongo.MongoClient(
-                f"mongobd+srv://{os.environ['CLUSTER_USERNAME']}:{os.environ['CLUSTER_PASSWORD']}@projects.ch4mixt."
+                f"mongodb+srv://{os.environ['CLUSTER_USERNAME']}:{os.environ['CLUSTER_PASSWORD']}@cluster0.edjcajk.mongodb.net/"
             )
 
             self.client = MongobdClient.client
