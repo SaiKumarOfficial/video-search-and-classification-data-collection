@@ -4,12 +4,14 @@ import shutil
 from src.logger import logging
 from src.exception import CustomException
 
+
 class DataStore:
     def __init__(self):
         self.root = os.path.join(os.getcwd(),"data")
         self.zip = os.path.join(self.root, "archive.zip")
         self.videos = os.path.join(self.root, "ISRO-documentry")
         self.list_unwanted = ["BACKGROUND_Google"]
+        self.bucket_name = os.environ['AWS_BUCKET_NAME']
     def prepare_data(self):
         try:
 
@@ -38,7 +40,9 @@ class DataStore:
         
     def sync_data(self):
         try:
-            pass
+            logging.info("================= Starting Data sync =================")
+            os.system(f"aws s3 sync { self.videos} s3://{self.bucket_name}/videos/")
+            logging.info("================= Data sync Completed =================")
         except Exception as e:
             message = CustomException(e,sys)
             return {"Created":False, "Reason":message.error_message}
