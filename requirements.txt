@@ -1,0 +1,6 @@
+fastapi
+boto3
+pymongo
+uvicorn[standard]
+
+-e .
