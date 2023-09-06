@@ -1,7 +1,8 @@
 from fastapi import FastAPI,File,UploadFile
 from fastapi.responses import JSONResponse
 from typing import List,Union,Any  
-from src.utils.database_handler import MongobdClient      
+from src.utils.database_handler import MongobdClient    
+from src.constants.database import COLLECTION_NAME  
 from src.utils.s3_handler import S3Connection    
 import uvicorn
 
@@ -10,3 +11,96 @@ mongo = MongobdClient
 s3 = S3Connection()
 
 choices = {}
+
+# Fetch all the labels
+
+@app.get("/fetch")
+def fetch_label():
+    try:
+        global choices
+        result = mongo.database[COLLECTION_NAME].find()
+        documents = [document for document in result]
+        choices = dict(documents[0])
+        response = {"Status":"Success","Repsonse":str(documents[0]) }
+        return JSONResponse(content=response, status_code= 200, media_type= "application/json")
+
+    except Exception as e:
+        raise e          
+    
+# Label Post api
+@app.post("/add_label/{label_name}")
+def add_label(label_name: str):
+    result = mongo.database[COLLECTION_NAME].find()
+    documents = [document for document in result]
+    last_value = list(map(int,list(documents[0].keys())[1:]))[-1]
+    response = mongo.database[COLLECTION_NAME].upload_one({"_id":documents[0]["_id"]},
+                                                          {"$set":{str(last_value+1):label_name}})
+    
+    if response.modified_count == 1:
+        response = s3.add_label(label_name)
+        return {"Status":"Success","S3-Response": response}
+    else:
+        return {"Status":"Fail","Message":response[1]}
+    
+
+#single video
+@app.get("/single_upload/")
+def single_upload():
+    info = {"Reponse": "Available", "Post-Request-Body":["label","Files"]}
+    return JSONResponse(content=info, status_code=200, media_type="application/json")
+
+
+# Upload single video
+@app.post("/single_upload/")
+async def single_upload(label: str, file: UploadFile = None):
+    label = choices.get(label,False)
+    print(file.content_type)
+    if file.content_type == "video/mp4" and label!=False:
+        response = s3.upload_to_s3(file.file,label)
+        return {"filename":file.filenamem , "label":label,"S3-response":response}
+    else:
+        return {
+            "ContentType":f"Content type should be Video/mp4 not {file.content_type}",
+            "LabelFounce": label,
+        }
+        
+# Bulk upload video
+@app.post("/bulk_upload")
+def bulk_upload():
+    info = {"Response":"Avialable", "Post-Request-Body":["label","Files"]}
+    return JSONResponse(content=info, status_code=200, media_type="application/json")
+
+
+
+# Tranforms here
+@app.post("/bulk_upload")
+def bulk_upload(label: str, files: List[UploadFile] = File(...)):
+    try:
+        skipped = []
+        label: Union[bool, Any] = choices.get(label,False)
+        if label:
+            for file in files:
+                if file.content_type =="video/mp4":
+                    response = s3.upload_to_s3(file.file, label)
+                    final_reponse = response
+                else:
+                    skipped.append(file.filename)
+            return {
+                "label":label,
+                "skipped":skipped,
+                "S3-Response": final_reponse,
+                "LabelFound":label,
+            }
+        else:
+            return {
+                "label":label,
+                "skipped":skipped,
+                "S3-Response": final_reponse,
+                "LabelFound":label,
+            }
+
+    except Exception as e:
+        return {"ConentType": f"Content type should be Video/mp4 not {e}"}
+    
+if __name__ == "__main__":
+    uvicorn.run(app, host="localhost", port =8090)
