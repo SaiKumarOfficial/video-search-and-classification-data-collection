@@ -160,3 +160,8 @@ cython_debug/
 #.idea/
 
 datacollection/
+ISRO-documentaries/
+ISRO-documentary/
+data/
+practise.py
+upload_data.py
