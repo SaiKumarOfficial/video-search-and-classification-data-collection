@@ -4,11 +4,12 @@ import boto3.session
 from typing import Dict       
 from src.utils.utils import video_unique_name
 from src.exception import CustomException
-
+from dotenv import load_dotenv
+load_dotenv()
 class S3Connection:
     def __init__(self):
         session = boto3.Session(
-            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_access_key_id= os.environ['AWS_ACCESS_KEY_ID'],
             aws_secret_access_key= os.environ['AWS_SECRET_ACCESS_KEY']
 
         )
