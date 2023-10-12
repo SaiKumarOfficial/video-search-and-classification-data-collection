@@ -1,14 +1,15 @@
 from src.utils.database_handler import MongobdClient
+from src.logger import logging
 from src.exception import CustomException
+from src.constants.database import COLLECTION_NAME
 import os
 import sys
 
 
-
 class MetaDataStore:
     def __init__(self):
-        self.root = os.path.join(os.getcwd(),'data')
-        self.videos = os.path.join(self.root, 'ISRO-documentary')
+        
+        self.videos = os.path.join(os.getcwd(), 'ISRO-documentary')
         self.labels = os.listdir(self.videos)
         self.mongo = MongobdClient()
 
@@ -18,13 +19,14 @@ class MetaDataStore:
             records = {}
             for num,label in enumerate(self.labels):
                 records[f'{num}'] = label
-            self.mongo.database['labels'].insert_one(records)
+            self.mongo.database[COLLECTION_NAME].insert_one(records)
+            logging.info("Inserted successfully")
         except Exception as e:
             raise CustomException(e,sys)
         
     def run_step(self):
         try:
-            self.register_labels
+            self.register_labels()
         except Exception as e:
             message =  CustomException(e,sys)
             return {"Created":False,"Reason":message.error_message}

@@ -10,6 +10,7 @@ COLLECTION_NAME = "labels-data"
 # Weaviate vector database................
 CLASS_NAME = "ISRODocumentaries"
 CLIENT_URL = "http://localhost:8080"
+BATCH_SIZE = 3
 
 SCHEMA_CONFIG =  {
     'class': CLASS_NAME,
@@ -27,15 +28,15 @@ SCHEMA_CONFIG =  {
             'dataType': ['blob']
         },
         {
-            'name': 'VideoFileName',
+            'name': 'Frame_Name',
             'dataType': ['string']
         },
         {   
-            'name':"FrameName",
+            'name':"Video_File_Name",
             'dataType':['string']
         },
         {
-            'name': "VideoURL",
+            'name': "Video_URL",
             'dataType': ['string']
         },
         {

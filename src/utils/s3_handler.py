@@ -4,6 +4,7 @@ import boto3.session
 from typing import Dict       
 from src.utils.utils import video_unique_name
 from src.exception import CustomException
+from src.constants.database import AWS_BUCKET_NAME
 from dotenv import load_dotenv
 load_dotenv()
 class S3Connection:
@@ -14,7 +15,7 @@ class S3Connection:
 
         )
         self.s3 = session.resource("s3")
-        self.bucket = self.s3.Bucket(os.environ['AWS_BUCKET_NAME'])
+        self.bucket = self.s3.Bucket(AWS_BUCKET_NAME)
 
     def add_label(self,label:str) ->Dict:
 

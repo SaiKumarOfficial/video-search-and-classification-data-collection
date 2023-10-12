@@ -4,6 +4,7 @@ from from_root import from_root
 from tqdm import tqdm
 
 
+
 # Upload data using boto3 [ Takes a lot of time ]
 def upload_bulk_data(root="ISRO-documentary"):
     labels = os.listdir(root)
