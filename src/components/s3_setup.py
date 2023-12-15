@@ -34,9 +34,9 @@ class DataStore:
 
     #         logging.info("Process Completed")
 
-        except Exception as e:
-            message = CustomException(e,sys)
-            return {"Created":False, "Reason":message.error_message}
+        # except Exception as e:
+        #     message = CustomException(e,sys)
+        #     return {"Created":False, "Reason":message.error_message}
         
     def sync_data(self):
         try:

@@ -2,12 +2,12 @@ from fastapi import FastAPI,File,UploadFile
 from fastapi.responses import JSONResponse
 from typing import List,Union,Any  
 from src.utils.database_handler import MongobdClient    
-from src.constants.database import COLLECTION_NAME  
+from src.constants.database import COLLECTION_NAME, DATABASE_NAME
 from src.utils.s3_handler import S3Connection    
 import uvicorn
 
 app = FastAPI(title = "DataCollection-Server")
-mongo = MongobdClient
+mongo = MongobdClient()
 s3 = S3Connection()
 
 choices = {}
@@ -33,7 +33,7 @@ def add_label(label_name: str):
     result = mongo.database[COLLECTION_NAME].find()
     documents = [document for document in result]
     last_value = list(map(int,list(documents[0].keys())[1:]))[-1]
-    response = mongo.database[COLLECTION_NAME].upload_one({"_id":documents[0]["_id"]},
+    response = mongo.database[COLLECTION_NAME].update_one({"_id":documents[0]["_id"]},
                                                           {"$set":{str(last_value+1):label_name}})
     
     if response.modified_count == 1:
@@ -53,19 +53,19 @@ def single_upload():
 # Upload single video
 @app.post("/single_upload/")
 async def single_upload(label: str, file: UploadFile = None):
-    label = choices.get(label,False)
+    # label = choices.get(label,False)
     print(file.content_type)
-    if file.content_type == "video/mp4" and label!=False:
+    if file.content_type == "video/mp4" and label !=False:
         response = s3.upload_to_s3(file.file,label)
-        return {"filename":file.filenamem , "label":label,"S3-response":response}
+        return {"filename":file.filename , "label":label,"S3-response":response}
     else:
         return {
-            "ContentType":f"Content type should be Video/mp4 not {file.content_type}",
+            "ContentType":f"Content type should be video/mp4 not {file.content_type}",
             "LabelFounce": label,
         }
         
 # Bulk upload video
-@app.post("/bulk_upload")
+@app.get("/bulk_upload")
 def bulk_upload():
     info = {"Response":"Avialable", "Post-Request-Body":["label","Files"]}
     return JSONResponse(content=info, status_code=200, media_type="application/json")
@@ -74,33 +74,34 @@ def bulk_upload():
 
 # Tranforms here
 @app.post("/bulk_upload")
-def bulk_upload(label: str, files: List[UploadFile] = File(...)):
+def bulk_upload(label_value: str, files: List[UploadFile] = File(...)):
     try:
         skipped = []
-        label: Union[bool, Any] = choices.get(label,False)
-        if label:
+        # label_value = choices.get(label, False)
+        final_response = None  # Initialize final_response outside the if block
+        if label_value:
             for file in files:
-                if file.content_type =="video/mp4":
-                    response = s3.upload_to_s3(file.file, label)
-                    final_reponse = response
+                if file.content_type == "video/mp4":
+                    response = s3.upload_to_s3(file.file, label_value)
+                    final_response = response
                 else:
                     skipped.append(file.filename)
             return {
-                "label":label,
-                "skipped":skipped,
-                "S3-Response": final_reponse,
-                "LabelFound":label,
+                "label": label_value,
+                "skipped": skipped,
+                "S3-Response": final_response,
+                "LabelFound": label_value,
             }
         else:
             return {
-                "label":label,
-                "skipped":skipped,
-                "S3-Response": final_reponse,
-                "LabelFound":label,
+                "label": label_value,
+                "skipped": skipped,
+                "S3-Response": final_response,
+                "LabelFound": label_value,
             }
 
     except Exception as e:
-        return {"ConentType": f"Content type should be Video/mp4 not {e}"}
+        return {"ContentType": f"Content type should be video/mp4, not {e}"}
     
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port =8090)
