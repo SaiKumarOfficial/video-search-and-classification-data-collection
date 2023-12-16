@@ -27,7 +27,7 @@ def fetch_label():
     except Exception as e:
         raise e          
     
-# Label Post api
+# Label api
 @app.post("/add_label/{label_name}")
 def add_label(label_name: str):
     result = mongo.database[COLLECTION_NAME].find()
@@ -69,7 +69,6 @@ async def single_upload(label: str, file: UploadFile = None):
 def bulk_upload():
     info = {"Response":"Avialable", "Post-Request-Body":["label","Files"]}
     return JSONResponse(content=info, status_code=200, media_type="application/json")
-
 
 
 # Tranforms here
