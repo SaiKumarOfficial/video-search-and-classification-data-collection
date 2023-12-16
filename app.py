@@ -41,7 +41,6 @@ def add_label(label_name: str):
         return {"Status":"Success","S3-Response": response}
     else:
         return {"Status":"Fail","Message":response[1]}
-    
 
 #single video
 @app.get("/single_upload/")
