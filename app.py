@@ -12,8 +12,14 @@ s3 = S3Connection()
 
 choices = {}
 
+@app.get("/")
+def home():
+    try: 
+        response = {"Status":"Success","Response": "Go to fastAPI docs to access the routes" }
+        return JSONResponse(content= response, status_code=200, media_type= "application/json")
+    except Exception as e:
+        raise e
 # Fetch all the labels
-
 @app.get("/fetch")
 def fetch_label():
     try:
@@ -102,4 +108,4 @@ def bulk_upload(label_value: str, files: List[UploadFile] = File(...)):
         return {"ContentType": f"Content type should be video/mp4, not {e}"}
     
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port =8090)
+    uvicorn.run(app, host="0.0.0.0", port =8030)
