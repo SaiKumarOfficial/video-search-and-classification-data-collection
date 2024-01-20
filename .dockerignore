@@ -1,0 +1,13 @@
+.vscode/
+build/
+data/
+datacollection/
+.git
+.github
+env
+practise.py
+upload_data.py
+ISRO-documentaries/
+ISRO-documentary/
+dist/
+logs/
