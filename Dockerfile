@@ -6,6 +6,6 @@ WORKDIR /datacollection
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-EXPOSE 8080
+EXPOSE 8030
 
-CMD ["python","app.py"]
+CMD ["python", "app.py"]
