@@ -87,11 +87,10 @@ jobs:
           docker run --name=data-collection -d \
           -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
           -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-          -e AWS_BUCKET_HEADER_URL=${{ secrets.AWS_BUCKET_HEADER_URL }} \
           -e AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }} \
           -e DATABASE_NAME=${{ secrets.DATABASE_NAME }} \
-          -e ATLAS_CLUSTER_USERNAME=${{ secrets.ATLAS_CLUSTER_USERNAME }} \
-          -e ATLAS_CLUSTER_PASSWORD=${{ secrets.ATLAS_CLUSTER_PASSWORD }} \
+          -e CLUSTER_USERNAME=${{ secrets.ATLAS_CLUSTER_USERNAME }} \
+          -e CLUSTER_PASSWORD=${{ secrets.ATLAS_CLUSTER_PASSWORD }} \
           -p 8080:8080 ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:DataCollection
 
 
